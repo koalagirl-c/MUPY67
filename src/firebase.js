@@ -3,13 +3,12 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    // วางค่าจากหน้า Firebase Console ตรงนี้
-    apiKey: "AIzaSyBMnEm0GQjVJqO7e8KOyl-cIcn5-8t2R1I",
-    authDomain: "anime-watchlist-362e3.firebaseapp.com",
-    projectId: "anime-watchlist-362e3",
-    storageBucket: "anime-watchlist-362e3.firebasestorage.app",
-    messagingSenderId: "977309395445",
-    appId: "1:977309395445:web:ed16de08041a608425d8bc"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
