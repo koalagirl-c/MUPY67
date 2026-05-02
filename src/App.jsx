@@ -3,6 +3,7 @@ import { auth } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import Login from "./Login";
 import Bookmark from "./Bookmark";
+import DarkMode from "./DarkMode";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -25,6 +26,7 @@ function App() {
         <button onClick={() => setPage("bookmark")}>My Watchlist</button>
         <button onClick={() => signOut(auth)}>Sign Out</button>
         <span>👤 {user.displayName}</span>
+        <DarkMode />
       </div>
 
       {page === "home" && <p>Search feature coming soon...</p>}
