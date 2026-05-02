@@ -13,6 +13,7 @@ function App() {
   const [anime, setAnime] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -39,17 +40,13 @@ function App() {
   const searchAnime = async () => {
     if (search.trim() === "") {
       fetchTopAnime();
+      setIsSearching(false);
       return;
     }
-
+    setIsSearching(true);
     setLoading(true);
-
-    const res = await fetch(
-      `https://api.jikan.moe/v4/anime?q=${search}`
-    );
-
+    const res = await fetch(`https://api.jikan.moe/v4/anime?q=${search}`);
     const data = await res.json();
-
     setAnime(data.data);
     setLoading(false);
   };
@@ -93,8 +90,7 @@ function App() {
             <button onClick={searchAnime}>Search</button>
           </div>
 
-          <h2 style={{ margin: "20px 0 10px" }}>⭐ Top Anime (By Rating)</h2>
-
+          {!isSearching && <h2 style={{ margin: "20px 0 10px" }}>⭐ Top Anime (By Rating)</h2>}
           {/* Loading */}
           {loading && <p>Loading...</p>}
 
