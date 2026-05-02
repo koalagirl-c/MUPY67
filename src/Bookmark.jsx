@@ -10,10 +10,25 @@ import {
     query,
     where,
 } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 // บันทึกอนิเมะ
 export async function addBookmark(anime) {
     const user = auth.currentUser;
+
+    // เช็คว่ามีอยู่แล้วไหม
+    const q = query(
+        collection(db, "bookmarks"),
+        where("uid", "==", user.uid),
+        where("malId", "==", anime.mal_id)
+    );
+    const existing = await getDocs(q);
+
+    if (!existing.empty) {
+        toast("⚠️ Already in your Watchlist!", { icon: "📋" });
+        return;
+    }
+
     await addDoc(collection(db, "bookmarks"), {
         uid: user.uid,
         malId: anime.mal_id,
@@ -21,6 +36,13 @@ export async function addBookmark(anime) {
         image: anime.images.jpg.image_url,
         score: anime.score,
     });
+    toast.success("✅ Added to Watchlist!");
+}
+
+// ลบ bookmark
+export async function removeBookmark(id) {
+    await deleteDoc(doc(db, "bookmarks", id));
+    toast.error("🗑️ Removed from Watchlist!");
 }
 
 // ดึงรายการ bookmark ของ user
@@ -29,11 +51,6 @@ export async function getBookmarks() {
     const q = query(collection(db, "bookmarks"), where("uid", "==", user.uid));
     const snapshot = await getDocs(q);
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-}
-
-// ลบ bookmark
-export async function removeBookmark(id) {
-    await deleteDoc(doc(db, "bookmarks", id));
 }
 
 // หน้าแสดง Watchlist
