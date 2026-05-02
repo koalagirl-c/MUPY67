@@ -93,6 +93,8 @@ function App() {
             <button onClick={searchAnime}>Search</button>
           </div>
 
+          <h2 style={{ margin: "20px 0 10px" }}>⭐ Top Anime (By Rating)</h2>
+
           {/* Loading */}
           {loading && <p>Loading...</p>}
 
