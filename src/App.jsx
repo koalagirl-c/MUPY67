@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import Login from "./Login";
 import Bookmark from "./Bookmark";
 import DarkMode from "./DarkMode";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -20,6 +21,7 @@ function App() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <Toaster position="top-right" />
       <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
         <h1>🎌 Anime Watchlist</h1>
         <button onClick={() => setPage("home")}>Home</button>
