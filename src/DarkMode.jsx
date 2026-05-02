@@ -4,8 +4,13 @@ function DarkMode() {
     const [dark, setDark] = useState(false);
 
     useEffect(() => {
-        document.body.style.background = dark ? "#1a1a1a" : "#ffffff";
-        document.body.style.color = dark ? "#ffffff" : "#000000";
+        if (dark) {
+            document.body.style.background = "#1a1a1a";
+            document.body.style.color = "#ffffff";
+        } else {
+            document.body.style.background = "#ffffff";
+            document.body.style.color = "#000000";
+        }
     }, [dark]);
 
     return (

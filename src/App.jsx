@@ -22,13 +22,15 @@ function App() {
   return (
     <div style={{ padding: "20px" }}>
       <Toaster position="top-right" />
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 20px" }}>
         <h1>🎌 Anime Watchlist</h1>
-        <button onClick={() => setPage("home")}>Home</button>
-        <button onClick={() => setPage("bookmark")}>My Watchlist</button>
-        <button onClick={() => signOut(auth)}>Sign Out</button>
-        <span>👤 {user.displayName}</span>
-        <DarkMode />
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <button onClick={() => setPage("home")}>Home</button>
+          <button onClick={() => setPage("bookmark")}>My Watchlist</button>
+          <button onClick={() => signOut(auth)}>Sign Out</button>
+          <span>👤 {user.displayName}</span>
+          <DarkMode />
+        </div>
       </div>
 
       {page === "home" && <p>Search feature coming soon...</p>}
