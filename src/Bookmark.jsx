@@ -1,22 +1,31 @@
 import { useState, useEffect } from "react";
-import { db } from "./firebase";
-import { auth } from "./firebase";
+import { db, auth } from "./firebase";
 import {
     collection,
     addDoc,
     getDocs,
     deleteDoc,
+    updateDoc,
     doc,
     query,
     where,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 
-// บันทึกอนิเมะ
+const STATUS_OPTIONS = ["Plan to Watch", "Watching", "Completed", "Dropped"];
+
+const STATUS_COLORS = {
+    "Plan to Watch": "#6c757d",
+    "Watching": "#0d6efd",
+    "Completed": "#198754",
+    "Dropped": "#dc3545",
+};
+
+// Add anime to watchlist
 export async function addBookmark(anime) {
     const user = auth.currentUser;
 
-    // เช็คว่ามีอยู่แล้วไหม
+    // Check if already bookmarked
     const q = query(
         collection(db, "bookmarks"),
         where("uid", "==", user.uid),
@@ -35,17 +44,18 @@ export async function addBookmark(anime) {
         title: anime.title,
         image: anime.images.jpg.image_url,
         score: anime.score,
+        status: "Plan to Watch",   // default status
     });
     toast.success("✅ Added to Watchlist!");
 }
 
-// ลบ bookmark
+// Remove anime from watchlist
 export async function removeBookmark(id) {
     await deleteDoc(doc(db, "bookmarks", id));
     toast.error("🗑️ Removed from Watchlist!");
 }
 
-// ดึงรายการ bookmark ของ user
+// Fetch user's bookmarks
 export async function getBookmarks() {
     const user = auth.currentUser;
     const q = query(collection(db, "bookmarks"), where("uid", "==", user.uid));
@@ -53,7 +63,13 @@ export async function getBookmarks() {
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-// หน้าแสดง Watchlist
+// Update status of a bookmark
+export async function updateBookmarkStatus(id, newStatus) {
+    await updateDoc(doc(db, "bookmarks", id), { status: newStatus });
+    toast.success(`📝 Status updated to "${newStatus}"!`);
+}
+
+// Watchlist page component
 function Bookmark() {
     const [list, setList] = useState([]);
 
@@ -63,21 +79,121 @@ function Bookmark() {
 
     const handleDelete = async (id) => {
         await removeBookmark(id);
-        setList(list.filter((item) => item.id !== id));
+        setList((prev) => prev.filter((item) => item.id !== id));
+    };
+
+    const handleStatusChange = async (id, newStatus) => {
+        await updateBookmarkStatus(id, newStatus);
+        setList((prev) =>
+            prev.map((item) =>
+                item.id === id ? { ...item, status: newStatus } : item
+            )
+        );
     };
 
     return (
         <div style={{ padding: "20px" }}>
             <h2>My Watchlist 🔖</h2>
-            {list.length === 0 && <p>No bookmarks yet!</p>}
-            {list.map((item) => (
-                <div key={item.id} style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                    <img src={item.image} alt={item.title} width={50} />
-                    <span>{item.title}</span>
-                    <span>⭐ {item.score}</span>
-                    <button onClick={() => handleDelete(item.id)}>Remove</button>
-                </div>
-            ))}
+
+            {list.length === 0 && <p>No bookmarks yet! Go add some anime.</p>}
+
+            <div
+                style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: "16px",
+                    marginTop: "16px",
+                }}
+            >
+                {list.map((item) => (
+                    <div
+                        key={item.id}
+                        style={{
+                            border: "1px solid #ccc",
+                            borderRadius: "10px",
+                            padding: "12px",
+                            display: "flex",
+                            gap: "12px",
+                            alignItems: "flex-start",
+                        }}
+                    >
+                        <img
+                            src={item.image}
+                            alt={item.title}
+                            style={{
+                                width: "60px",
+                                height: "80px",
+                                objectFit: "cover",
+                                borderRadius: "6px",
+                                flexShrink: 0,
+                            }}
+                        />
+
+                        <div style={{ flex: 1 }}>
+                            <p style={{ fontWeight: "bold", marginBottom: "4px" }}>
+                                {item.title}
+                            </p>
+                            <p style={{ fontSize: "13px", marginBottom: "8px" }}>
+                                ⭐ {item.score || "N/A"}
+                            </p>
+
+                            {/* Status Badge */}
+                            <span
+                                style={{
+                                    display: "inline-block",
+                                    padding: "2px 10px",
+                                    borderRadius: "999px",
+                                    fontSize: "12px",
+                                    fontWeight: "bold",
+                                    color: "#fff",
+                                    backgroundColor: STATUS_COLORS[item.status] || "#6c757d",
+                                    marginBottom: "8px",
+                                }}
+                            >
+                                {item.status || "Plan to Watch"}
+                            </span>
+
+                            {/* Status Dropdown */}
+                            <select
+                                value={item.status || "Plan to Watch"}
+                                onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                                style={{
+                                    display: "block",
+                                    width: "100%",
+                                    padding: "4px 6px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #ccc",
+                                    fontSize: "13px",
+                                    marginBottom: "8px",
+                                    cursor: "pointer",
+                                    background: "inherit",
+                                    color: "inherit",
+                                }}
+                            >
+                                {STATUS_OPTIONS.map((s) => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
+                            </select>
+
+                            <button
+                                onClick={() => handleDelete(item.id)}
+                                style={{
+                                    width: "100%",
+                                    padding: "4px 8px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #dc3545",
+                                    color: "#dc3545",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                    fontSize: "13px",
+                                }}
+                            >
+                                🗑️ Remove
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

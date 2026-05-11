@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true); // ← added
   const [page, setPage] = useState("home");
 
   const [anime, setAnime] = useState([]);
@@ -18,6 +19,7 @@ function App() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
+      setAuthLoading(false); // ← added
     });
 
     fetchTopAnime();
@@ -28,10 +30,8 @@ function App() {
   // Top anime when page opens
   const fetchTopAnime = async () => {
     setLoading(true);
-
     const res = await fetch("https://api.jikan.moe/v4/top/anime");
     const data = await res.json();
-
     setAnime(data.data);
     setLoading(false);
   };
@@ -51,6 +51,8 @@ function App() {
     setLoading(false);
   };
 
+  // ← added: blank screen while Firebase checks auth — no login flash
+  if (authLoading) return null;
   if (!user) return <Login />;
 
   return (
@@ -80,17 +82,34 @@ function App() {
               placeholder="Search anime..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && searchAnime()}
               style={{
                 padding: "8px",
                 width: "250px",
-                marginRight: "10px"
+                marginRight: "10px",
+                background: "inherit",
+                color: "inherit",
+                border: "1px solid #ccc",
+                borderRadius: "6px",
               }}
             />
-
             <button onClick={searchAnime}>Search</button>
+            {isSearching && (
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setIsSearching(false);
+                  fetchTopAnime();
+                }}
+                style={{ marginLeft: "6px" }}
+              >
+                ✕ Clear
+              </button>
+            )}
           </div>
 
           {!isSearching && <h2 style={{ margin: "20px 0 10px" }}>⭐ Top Anime (By Rating)</h2>}
+
           {/* Loading */}
           {loading && <p>Loading...</p>}
 
@@ -99,7 +118,7 @@ function App() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "15px"
+              gap: "15px",
             }}
           >
             {anime.map((item) => (
@@ -108,7 +127,7 @@ function App() {
                 style={{
                   border: "1px solid gray",
                   borderRadius: "10px",
-                  padding: "10px"
+                  padding: "10px",
                 }}
               >
                 <img
@@ -118,17 +137,16 @@ function App() {
                     width: "100%",
                     height: "300px",
                     objectFit: "cover",
-                    borderRadius: "10px"
+                    borderRadius: "10px",
                   }}
                 />
 
-                <h3>{item.title}</h3>
-
-                <p>⭐ {item.score || "N/A"}</p>
+                <h3 style={{ margin: "8px 0 4px" }}>{item.title}</h3>
+                <p style={{ marginBottom: "8px" }}>⭐ {item.score || "N/A"}</p>
 
                 <button
                   style={{ width: "100%" }}
-                  onClick={() => addBookmark(item)}
+                  onClick={async () => await addBookmark(item)}
                 >
                   🔖 Add to Watchlist
                 </button>
