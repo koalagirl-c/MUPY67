@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true); // ← added
   const [page, setPage] = useState("home");
 
   const [anime, setAnime] = useState([]);
@@ -18,6 +19,7 @@ function App() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
+      setAuthLoading(false); // ← added
     });
 
     fetchTopAnime();
@@ -49,6 +51,8 @@ function App() {
     setLoading(false);
   };
 
+  // ← added: blank screen while Firebase checks auth — no login flash
+  if (authLoading) return null;
   if (!user) return <Login />;
 
   return (
@@ -140,7 +144,6 @@ function App() {
                 <h3 style={{ margin: "8px 0 4px" }}>{item.title}</h3>
                 <p style={{ marginBottom: "8px" }}>⭐ {item.score || "N/A"}</p>
 
-                {/* FIX: async/await so toast fires after Firestore write */}
                 <button
                   style={{ width: "100%" }}
                   onClick={async () => await addBookmark(item)}
