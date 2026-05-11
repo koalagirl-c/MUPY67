@@ -7,15 +7,17 @@ function DarkMode() {
 
     useEffect(() => {
         localStorage.setItem("darkMode", dark);
-        document.body.style.background = dark ? "#1a1a1a" : "#ffffff";
-        document.body.style.color = dark ? "#ffffff" : "#000000";
+        if (dark) {
+            document.body.classList.add("dark");
+        } else {
+            document.body.classList.remove("dark");
+        }
     }, [dark]);
 
     // Apply saved preference on first load
     useEffect(() => {
         const saved = localStorage.getItem("darkMode") === "true";
-        document.body.style.background = saved ? "#1a1a1a" : "#ffffff";
-        document.body.style.color = saved ? "#ffffff" : "#000000";
+        if (saved) document.body.classList.add("dark");
     }, []);
 
     return (

@@ -11,6 +11,31 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
+/* Dark mode — triggered by body.dark class */
+body.dark {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Fix select dropdown in dark mode */
+body.dark select {
+  background: #2a2a2a;
+  color: #ffffff;
+  border-color: #555;
+}
+
+body.dark select option {
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+/* Fix input in dark mode */
+body.dark input {
+  background: #2a2a2a;
+  color: #ffffff;
+  border-color: #555;
+}
+
 #root {
   width: 100%;
   min-height: 100vh;
