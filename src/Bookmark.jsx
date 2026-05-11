@@ -12,13 +12,12 @@ import {
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 
-const STATUS_OPTIONS = ["Plan to Watch", "Watching", "Already Watched", "Completed", "Dropped"];
+const STATUS_OPTIONS = ["Plan to Watch", "Watching", "Already Watched", "Dropped"];
 
 const STATUS_COLORS = {
     "Plan to Watch": "#6c757d",
     "Watching": "#0d6efd",
-    "Already Watched": "#6f42c1",
-    "Completed": "#198754",
+    "Already Watched": "#198754",
     "Dropped": "#dc3545",
 };
 
